@@ -40,3 +40,6 @@ flake8==6.1.0
 # Production
 gunicorn==21.2.0
 
+# Web Interface
+gradio==4.44.0
+

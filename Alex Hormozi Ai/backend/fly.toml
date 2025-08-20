@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for hormozi-ai on 2024-08-20T14:30:00Z
+app = 'hormozi-ai'
+primary_region = 'sjc'
+
+[build]
+dockerfile = 'Dockerfile'
+
+[http_service]
+internal_port = 8000
+force_https = true
+auto_stop_machines = 'stop'
+auto_start_machines = true
+min_machines_running = 0
+
+[[vm]]
+memory = '512mb'
+cpu_kind = 'shared'
+cpus = 1
+
+[env]
+CHROMA_PERSIST_DIRECTORY = '/app/data/chroma'
+DEBUG = 'False'
+ENVIRONMENT = 'production'
