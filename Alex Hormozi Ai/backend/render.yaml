@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: hormozi-ai-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CHROMA_PERSIST_DIRECTORY
+        value: /app/data/chroma
+      - key: DEBUG
+        value: "False"
+      - key: ENVIRONMENT
+        value: "production"
