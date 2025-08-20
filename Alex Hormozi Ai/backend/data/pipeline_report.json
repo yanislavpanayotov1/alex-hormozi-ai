@@ -1,0 +1,18 @@
+{
+  "pipeline_summary": {
+    "duration_minutes": 2.7,
+    "books_found": 3,
+    "books_processed": 3,
+    "total_chunks": 209,
+    "embeddings_created": 209,
+    "vector_db_populated": true,
+    "errors": []
+  },
+  "configuration": {
+    "books_directory": "backend/data/raw",
+    "output_directory": "backend/data/chroma",
+    "embedding_model": "openai",
+    "chunk_size": 1000
+  },
+  "timestamp": 1755689079.877609
+}
