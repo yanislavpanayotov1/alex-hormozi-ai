@@ -15,6 +15,7 @@ from pathlib import Path
 import openai
 import chromadb
 from chromadb.config import Settings
+from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,9 @@ class RAGService:
         self.openai_client = openai.OpenAI(
             api_key=openai_api_key or os.getenv("OPENAI_API_KEY")
         )
+        
+        # Initialize sentence transformer for embeddings (same as used in training)
+        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
         
         # Initialize ChromaDB
         self._init_chroma_db()
@@ -88,9 +92,12 @@ class RAGService:
             return []
         
         try:
-            # Query the collection
+            # Generate query embedding using the same model as training
+            query_embedding = self.embedding_model.encode([query]).tolist()
+            
+            # Query the collection using embeddings instead of text
             results = self.collection.query(
-                query_texts=[query],
+                query_embeddings=query_embedding,
                 n_results=n_results,
                 include=["documents", "metadatas", "distances"]
             )
@@ -106,10 +113,13 @@ class RAGService:
             distances = results['distances'][0] if results['distances'] else [0] * len(documents)
             
             for doc, metadata, distance in zip(documents, metadatas, distances):
-                # Convert distance to similarity (ChromaDB uses cosine distance)
-                similarity = 1 - distance
+                # ChromaDB returns cosine distance, convert to similarity score
+                # For cosine distance, smaller values = more similar
+                # We'll use inverse distance as similarity for ranking
+                similarity = 1.0 / (1.0 + distance) if distance >= 0 else 1.0
                 
-                if similarity >= min_similarity:
+                # Accept results with reasonable distance (adjust threshold for cosine distance)
+                if distance <= 2.0:  # Accept results with distance <= 2.0
                     processed_results.append({
                         'content': doc,
                         'metadata': metadata,
